@@ -1,7 +1,7 @@
 import os
 from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def ask_llm(prompt: str, model="gpt-4o-mini"):
     response = client.chat.completions.create(

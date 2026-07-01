@@ -1,5 +1,7 @@
 google-genai>=1.28.0
 
+.env
+
 python-dotenv>=1.0.1
 
 fastapi>=0.116.0
