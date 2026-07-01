@@ -44,11 +44,28 @@ class DebuggerAgent(BaseAgent):
         Analiza el código y genera un reporte.
         """
 
+        if not code.strip():
+            return "No se proporcionó código para depurar."
+
         prompt = f"""
 {DEBUGGER_PROMPT}
 
-Analiza cuidadosamente el siguiente código.
+Analiza cuidadosamente el siguiente código fuente:
 
-```python
 {code}
+
+Realiza una depuración completa e identifica:
+
+1. Errores de sintaxis.
+2. Posibles excepciones en tiempo de ejecución.
+3. Variables sin utilizar.
+4. Imports innecesarios.
+5. Código muerto.
+6. Problemas de lógica.
+7. Posibles optimizaciones.
+8. Recomendaciones para corregir los errores.
+
+Devuelve únicamente el reporte de depuración.
 """
+
+        return self.generate(prompt)

@@ -25,11 +25,7 @@ class TesterAgent(BaseAgent):
             description="Genera pruebas unitarias para el código."
         )
 
-    def run(
-        self,
-        code: str,
-        framework: str = "pytest"
-    ) -> str:
+    def run(self, code: str, framework: str = "pytest") -> str:
         """
         Genera pruebas unitarias.
 
@@ -41,15 +37,18 @@ class TesterAgent(BaseAgent):
             Código de las pruebas.
         """
 
+        if not code or not code.strip():
+            return "No se proporcionó código para generar pruebas."
+
         prompt = f"""
 {TESTER_PROMPT}
 
 Framework:
-
 {framework}
 
 Código:
 
-```python
+```text
 {code}
+```
 """

@@ -44,12 +44,29 @@ class CodeAnalyzerAgent(BaseAgent):
         Analiza el código y genera un reporte.
         """
 
+        if not code.strip():
+            return "No se proporcionó código para analizar."
+
         prompt = f"""
 {ANALYZER_PROMPT}
 
-Analiza cuidadosamente el siguiente código.
+Analiza cuidadosamente el siguiente código fuente:
 
-```python
 {code}
 
+Genera un reporte profesional que incluya:
+
+- Calidad del código.
+- Bugs encontrados.
+- Problemas de arquitectura.
+- Violaciones a SOLID.
+- Problemas de Clean Code.
+- Complejidad.
+- Rendimiento.
+- Código duplicado.
+- Posibles mejoras.
+
+Devuelve únicamente el análisis.
 """
+
+        return self.generate(prompt)
