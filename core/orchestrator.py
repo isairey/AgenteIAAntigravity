@@ -1,17 +1,8 @@
 """
 =========================================================
 Antigravity AI
-Orchestrator
+Orchestrator (PRO FIX v2)
 =========================================================
-
-Coordina todos los agentes del sistema.
-
-Flujo recomendado:
-
-Planner → Generator → Analyzer → Security → Debugger
-→ Fixer → Tester → Reviewer → Documentation
-
-Autor: ISAI
 """
 
 import time
@@ -29,16 +20,11 @@ from agents.documentation import DocumentationAgent
 
 class Orchestrator:
     """
-    Orquestador principal del sistema multiagente.
+    Orquestador robusto del sistema multiagente.
     """
 
     def __init__(self):
-
         self.console = Console()
-
-        # ================================
-        # Agentes
-        # ================================
 
         self.generator = CodeGeneratorAgent()
         self.analyzer = AnalyzerAgent()
@@ -49,130 +35,164 @@ class Orchestrator:
         self.reviewer = ReviewerAgent()
         self.documentation = DocumentationAgent()
 
-        # ================================
-        # Estado
-        # ================================
+    # =====================================================
+    # VALIDACIÓN DE RESPUESTAS
+    # =====================================================
 
-        self.code = ""
-        self.analysis = ""
-        self.security_report = ""
-        self.debug_report = ""
-        self.fixed_code = ""
-        self.test_report = ""
-        self.review = ""
+    def is_invalid(self, result: str) -> bool:
+        """
+        Detecta respuestas inválidas del LLM.
+        """
+        if not result:
+            return True
+
+        bad_signals = [
+            "Error Gemini API",
+            "Error Stream",
+            "None",
+            "Sin respuesta",
+            "FALLÓ GENERACIÓN"
+        ]
+
+        return any(sig in result for sig in bad_signals)
 
     # =====================================================
-    # Ejecutar pipeline completo
+    # SAFE RUN MEJORADO
+    # =====================================================
+
+    def safe_run(self, func, *args):
+        """
+        Ejecuta agentes sin romper pipeline.
+        """
+
+        try:
+            result = func(*args)
+
+            if self.is_invalid(result):
+                return "FALLÓ AGENTE"
+
+            return str(result)
+
+        except Exception as e:
+            return f"ERROR AGENTE: {str(e)}"
+
+    # =====================================================
+    # PIPELINE PRINCIPAL
     # =====================================================
 
     def run(self, request: str) -> dict:
-        """
-        Ejecuta todo el flujo de agentes.
-        """
 
         start_time = time.time()
 
+        # =================================================
+        # 1. GENERACIÓN (CRÍTICO)
+        # =================================================
         self.console.print("\n[bold cyan]🚀 Generando código...[/bold cyan]")
-        self.code = self.generator.run(request)
+        code = self.safe_run(self.generator.run, request)
 
+        if self.is_invalid(code):
+            self.console.print("\n[bold red]❌ Error crítico en generación. Abortando pipeline.[/bold red]")
+            return {
+                "code": code,
+                "analysis": "ABORTADO",
+                "security": "ABORTADO",
+                "debug": "ABORTADO",
+                "fixed_code": "ABORTADO",
+                "tests": "ABORTADO",
+                "review": "ABORTADO",
+                "documentation": "ABORTADO",
+                "execution_time": 0
+            }
+
+        # =================================================
+        # 2. ANALISIS
+        # =================================================
         self.console.print("\n[bold cyan]🔍 Analizando código...[/bold cyan]")
-        self.analysis = self.analyzer.run(self.code)
+        analysis = self.safe_run(self.analyzer.run, code)
 
         self.console.print("\n[bold cyan]🔐 Analizando seguridad...[/bold cyan]")
-        self.security_report = self.security.run(self.code)
+        security = self.safe_run(self.security.run, code)
 
         self.console.print("\n[bold cyan]🐞 Depurando código...[/bold cyan]")
-        self.debug_report = self.debugger.run(self.code)
+        debug = self.safe_run(self.debugger.run, code)
 
+        # =================================================
+        # 3. FIXER
+        # =================================================
         self.console.print("\n[bold cyan]🛠 Corrigiendo código...[/bold cyan]")
-        self.fixed_code = self.fixer.run(
-            self.code,
-            self.analysis,
-            self.security_report,
-            self.debug_report
+        fixed_code = self.safe_run(
+            self.fixer.run,
+            code,
+            analysis,
+            security,
+            debug
         )
 
+        # fallback si falla fixer
+        if self.is_invalid(fixed_code):
+            fixed_code = code
+
+        # =================================================
+        # 4. TESTS + REVIEW
+        # =================================================
         self.console.print("\n[bold cyan]🧪 Generando tests...[/bold cyan]")
-        self.test_report = self.tester.run(self.fixed_code)
+        tests = self.safe_run(self.tester.run, fixed_code)
 
         self.console.print("\n[bold cyan]⭐ Revisando calidad...[/bold cyan]")
-        self.review = self.reviewer.run(self.fixed_code)
+        review = self.safe_run(self.reviewer.run, fixed_code)
 
+        # =================================================
+        # 5. DOCS
+        # =================================================
         self.console.print("\n[bold cyan]📄 Generando documentación...[/bold cyan]")
-        docs = self.documentation.run(
+        docs = self.safe_run(
+            self.documentation.run,
             "Proyecto generado por Antigravity AI",
-            self.fixed_code
+            fixed_code
         )
 
         end_time = time.time()
 
         return {
-            "code": self.code,
-            "analysis": self.analysis,
-            "security": self.security_report,
-            "debug": self.debug_report,
-            "fixed_code": self.fixed_code,
-            "tests": self.test_report,
-            "review": self.review,
+            "code": code,
+            "analysis": analysis,
+            "security": security,
+            "debug": debug,
+            "fixed_code": fixed_code,
+            "tests": tests,
+            "review": review,
             "documentation": docs,
             "execution_time": end_time - start_time
         }
 
     # =====================================================
-    # Ejecutar solo generación
+    # HELPERS
     # =====================================================
 
     def generate_only(self, request: str) -> str:
-        return self.generator.run(request)
-
-    # =====================================================
-    # Ejecutar solo análisis
-    # =====================================================
+        return self.safe_run(self.generator.run, request)
 
     def analyze_only(self, code: str) -> str:
-        return self.analyzer.run(code)
-
-    # =====================================================
-    # Ejecutar solo seguridad
-    # =====================================================
+        return self.safe_run(self.analyzer.run, code)
 
     def security_only(self, code: str) -> str:
-        return self.security.run(code)
-
-    # =====================================================
-    # Ejecutar solo debug
-    # =====================================================
+        return self.safe_run(self.security.run, code)
 
     def debug_only(self, code: str) -> str:
-        return self.debugger.run(code)
-
-    # =====================================================
-    # Ejecutar solo fixer
-    # =====================================================
+        return self.safe_run(self.debugger.run, code)
 
     def fix_only(self, code: str) -> str:
-        return self.fixer.run(code)
-
-    # =====================================================
-    # Ejecutar solo tests
-    # =====================================================
+        return self.safe_run(self.fixer.run, code)
 
     def test_only(self, code: str) -> str:
-        return self.tester.run(code)
-
-    # =====================================================
-    # Ejecutar solo review
-    # =====================================================
+        return self.safe_run(self.tester.run, code)
 
     def review_only(self, code: str) -> str:
-        return self.reviewer.run(code)
-
-    # =====================================================
-    # Ejecutar solo documentación
-    # =====================================================
+        return self.safe_run(self.reviewer.run, code)
 
     def docs_only(self, code: str) -> str:
-        return self.documentation.run(
+        return self.safe_run(
+            self.documentation.run,
             "Proyecto",
             code
         )

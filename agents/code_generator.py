@@ -26,7 +26,7 @@ from core.prompts import CODE_GENERATOR_PROMPT
 
 class CodeGeneratorAgent(BaseAgent):
     """
-    Agente encargado de generar código.
+    Agente encargado de generar código utilizando Gemini.
     """
 
     def __init__(self):
@@ -36,15 +36,33 @@ class CodeGeneratorAgent(BaseAgent):
         )
 
     # =====================================================
+    # Utilidad privada
+    # =====================================================
+
+    def _execute(self, prompt: str) -> str:
+        """
+        Envía el prompt al modelo y valida la respuesta.
+        """
+
+        response = self.generate(prompt)
+
+        if response is None:
+            return "Error: Gemini no devolvió respuesta."
+
+        response = str(response).strip()
+
+        if response == "":
+            return "Error: Respuesta vacía."
+
+        return response
+
+    # =====================================================
     # Generación principal
     # =====================================================
 
-    def run(
-        self,
-        request: str
-    ) -> str:
+    def run(self, request: str) -> str:
         """
-        Genera código a partir de una petición.
+        Genera código a partir de una solicitud.
         """
 
         prompt = f"""
@@ -56,24 +74,22 @@ Solicitud:
 
 Instrucciones:
 
-- Genera código limpio.
+- Genera una solución profesional.
 - Usa buenas prácticas.
 - Sigue SOLID.
-- Usa Clean Code.
+- Sigue Clean Code.
 - Agrega comentarios únicamente cuando sean necesarios.
-- Devuelve únicamente el código.
+- Si son varios archivos, indica el nombre antes de cada uno.
+- Devuelve únicamente el código generado.
 """
 
-        return self.generate(prompt)
+        return self._execute(prompt)
 
     # =====================================================
     # Proyecto completo
     # =====================================================
 
-    def generate_project(
-        self,
-        description: str
-    ) -> str:
+    def generate_project(self, description: str) -> str:
 
         prompt = f"""
 Genera un proyecto profesional.
@@ -91,22 +107,19 @@ Incluye:
 - README
 - Dependencias
 
-Devuelve todo el proyecto.
+Devuelve el proyecto completo.
 """
 
-        return self.generate(prompt)
+        return self._execute(prompt)
 
     # =====================================================
     # Clase
     # =====================================================
 
-    def generate_class(
-        self,
-        description: str
-    ) -> str:
+    def generate_class(self, description: str) -> str:
 
         prompt = f"""
-Genera una clase en Python.
+Genera una clase.
 
 Descripción:
 
@@ -116,26 +129,23 @@ Debe incluir:
 
 - Constructor
 - Métodos
-- Docstrings
 - Tipado
+- Docstrings
 - Buenas prácticas
 
 Devuelve únicamente el código.
 """
 
-        return self.generate(prompt)
+        return self._execute(prompt)
 
     # =====================================================
     # Función
     # =====================================================
 
-    def generate_function(
-        self,
-        description: str
-    ) -> str:
+    def generate_function(self, description: str) -> str:
 
         prompt = f"""
-Genera una función en Python.
+Genera una función.
 
 Descripción:
 
@@ -151,19 +161,16 @@ Debe incluir:
 Devuelve únicamente el código.
 """
 
-        return self.generate(prompt)
+        return self._execute(prompt)
 
     # =====================================================
-    # API FastAPI
+    # API
     # =====================================================
 
-    def generate_api(
-        self,
-        description: str
-    ) -> str:
+    def generate_api(self, description: str) -> str:
 
         prompt = f"""
-Genera una API con FastAPI.
+Genera una API profesional con FastAPI.
 
 Descripción:
 
@@ -172,26 +179,24 @@ Descripción:
 Incluye:
 
 - Endpoints
-- Validaciones
 - Modelos Pydantic
+- Validaciones
 - Manejo de errores
+- Organización por módulos
 
 Devuelve únicamente el código.
 """
 
-        return self.generate(prompt)
+        return self._execute(prompt)
 
     # =====================================================
     # Base de datos
     # =====================================================
 
-    def generate_database(
-        self,
-        description: str
-    ) -> str:
+    def generate_database(self, description: str) -> str:
 
         prompt = f"""
-Diseña la base de datos.
+Diseña una base de datos.
 
 Descripción:
 
@@ -202,25 +207,38 @@ Incluye:
 - Tablas
 - Relaciones
 - Índices
+- Restricciones
 - Buenas prácticas
 
 Devuelve SQL o modelos ORM.
 """
 
-        return self.generate(prompt)
+        return self._execute(prompt)
 
     # =====================================================
     # Refactor
     # =====================================================
 
-    def refactor(
-        self,
-        code: str
-    ) -> str:
+def refactor(self, code: str) -> str:
+    """
+    Refactoriza código existente.
+    """
 
-        prompt = f"""
-Refactoriza el siguiente código.
+    prompt = f"""
+Refactoriza el siguiente código:
 
-```python
 {code}
+
+Aplica:
+
+- Clean Code.
+- Principios SOLID.
+- Mejora el rendimiento.
+- Elimina código duplicado.
+- Corrige malas prácticas.
+- Mantén la misma funcionalidad.
+
+Devuelve únicamente el código refactorizado.
 """
+
+    return self._execute(prompt)

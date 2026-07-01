@@ -6,21 +6,6 @@ Security Agent
 
 Analiza el código desde el punto de vista de seguridad.
 
-Detecta:
-
-- SQL Injection
-- XSS
-- CSRF
-- Command Injection
-- Path Traversal
-- Hardcoded Secrets
-- API Keys
-- Credenciales
-- JWT inseguros
-- Errores de autenticación
-- Errores de autorización
-- OWASP Top 10
-
 Autor: ISAI
 """
 
@@ -54,11 +39,39 @@ class SecurityAgent(BaseAgent):
             Reporte de seguridad.
         """
 
+        if not code.strip():
+            return "No se proporcionó código para analizar."
+
         prompt = f"""
 {SECURITY_PROMPT}
 
-Analiza el siguiente código.
+Analiza el siguiente código fuente:
 
-```python
 {code}
+
+Busca específicamente:
+
+- SQL Injection
+- XSS
+- CSRF
+- Command Injection
+- Path Traversal
+- Hardcoded Secrets
+- API Keys expuestas
+- Credenciales embebidas
+- JWT inseguros
+- Problemas de autenticación
+- Problemas de autorización
+- Vulnerabilidades OWASP Top 10
+
+Devuelve un reporte profesional indicando:
+
+1. Vulnerabilidades encontradas.
+2. Nivel de riesgo.
+3. Recomendaciones.
+4. Conclusión.
+
+Devuelve únicamente el análisis.
 """
+
+        return self.generate(prompt)
