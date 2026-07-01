@@ -37,7 +37,7 @@ class GeminiClient:
         model: str = "gemini-2.5-flash"
     ):
 
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY")
+        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         self.model = model
 
         if not self.api_key:
