@@ -3,19 +3,6 @@
 Antigravity AI
 Base Agent
 =========================================================
-
-Clase base para todos los agentes del sistema.
-
-Responsabilidad:
-
-- Conectar con GeminiClient
-- Proveer utilidades comunes
-- Manejo de archivos
-- Interfaz estándar para agentes
-
-Todos los agentes heredan de aquí.
-
-Autor: ISAI
 """
 
 from core.gemini_client import GeminiClient
@@ -35,40 +22,63 @@ class BaseAgent:
 
         self.name = name
         self.description = description
-
-        # Cliente Gemini compartido
         self.llm = GeminiClient(model=model)
 
     # =====================================================
-    # Generación principal
+    # GENERATE
     # =====================================================
 
-    def generate(self, prompt: str, temperature: float = 0.2) -> str:
+    def generate(self, prompt: str, temperature: float = 0.2):
         """
-        Genera respuesta usando Gemini.
+        Genera una respuesta usando Gemini.
+        Devuelve None si ocurre un error.
         """
 
-        return self.llm.generate(
-            prompt=prompt,
-            temperature=temperature
-        )
+        try:
+            response = self.llm.generate(
+                prompt=prompt,
+                temperature=temperature
+            )
+
+            if not response:
+                return None
+
+            # Si Gemini devolvió un mensaje de error
+            if isinstance(response, str) and response.startswith("Error"):
+                return None
+
+            return response.strip()
+
+        except Exception as e:
+            print(f"[{self.name}] Error generate: {e}")
+            return None
 
     # =====================================================
-    # Chat multi-turn
+    # CHAT
     # =====================================================
 
-    def chat(self, messages: list, temperature: float = 0.2) -> str:
-        """
-        Chat con historial.
-        """
+    def chat(self, messages: list, temperature: float = 0.2):
 
-        return self.llm.chat(
-            messages=messages,
-            temperature=temperature
-        )
+        try:
+            response = self.llm.chat(
+                messages=messages,
+                temperature=temperature
+            )
+
+            if not response:
+                return None
+
+            if isinstance(response, str) and response.startswith("Error"):
+                return None
+
+            return response.strip()
+
+        except Exception as e:
+            print(f"[{self.name}] Error chat: {e}")
+            return None
 
     # =====================================================
-    # Streaming
+    # STREAM
     # =====================================================
 
     def stream(self, prompt: str, temperature: float = 0.2):
@@ -76,54 +86,49 @@ class BaseAgent:
         Streaming de respuesta.
         """
 
-        return self.llm.stream(
-            prompt=prompt,
-            temperature=temperature
-        )
+        try:
+            return self.llm.stream(
+                prompt=prompt,
+                temperature=temperature
+            )
+
+        except Exception as e:
+            print(f"[{self.name}] Error stream: {e}")
+            return None
 
     # =====================================================
-    # Utilidad: leer archivo
+    # FILES
     # =====================================================
 
-    def read_file(self, path: str) -> str:
-        """
-        Lee un archivo de texto.
-        """
+    def read_file(self, path: str):
 
         try:
             with open(path, "r", encoding="utf-8") as f:
                 return f.read()
 
         except Exception as e:
-            return f"Error leyendo archivo: {str(e)}"
+            print(f"[{self.name}] Error leyendo archivo: {e}")
+            return None
 
-    # =====================================================
-    # Utilidad: escribir archivo
-    # =====================================================
-
-    def write_file(self, path: str, content: str) -> None:
-        """
-        Escribe contenido en un archivo.
-        """
+    def write_file(self, path: str, content: str):
 
         try:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(content)
+            return True
 
         except Exception as e:
-            print(f"Error escribiendo archivo: {str(e)}")
+            print(f"[{self.name}] Error escribiendo archivo: {e}")
+            return False
 
     # =====================================================
-    # Info del agente
+    # INFO
     # =====================================================
 
-    def info(self) -> str:
-        """
-        Devuelve información del agente.
-        """
+    def info(self):
 
-        return f"""
-Agent: {self.name}
-Description: {self.description}
-Model: {self.llm.model}
-"""
+        return (
+            f"Agent: {self.name}\n"
+            f"Description: {self.description}\n"
+            f"Model: {self.llm.model}"
+        )

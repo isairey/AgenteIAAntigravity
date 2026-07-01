@@ -3,20 +3,6 @@
 Antigravity AI
 Gemini Client (Google GenAI SDK)
 =========================================================
-
-Cliente oficial para Google Gemini.
-
-Usa:
-- google-genai (SDK nuevo)
-- Gemini 2.5 Flash / Pro
-
-Responsabilidad:
-- Enviar prompts
-- Recibir respuestas
-- Manejar errores
-- Configuración centralizada
-
-Autor: ISAI
 """
 
 import os
@@ -28,7 +14,7 @@ from google.genai import types
 
 class GeminiClient:
     """
-    Cliente principal para Google Gemini API.
+    Cliente estable para Google Gemini API.
     """
 
     def __init__(
@@ -37,22 +23,28 @@ class GeminiClient:
         model: str = "gemini-2.5-flash"
     ):
 
+        # =====================================================
+        # API KEY (FIX IMPORTANTE)
+        # =====================================================
+
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         self.model = model
 
         if not self.api_key:
-            raise ValueError("❌ GEMINI_API_KEY no encontrada en variables de entorno")
+            raise ValueError(
+                "❌ GOOGLE_API_KEY no encontrada en variables de entorno"
+            )
 
-        # Cliente oficial
+        # Cliente oficial Google GenAI
         self.client = genai.Client(api_key=self.api_key)
 
     # =====================================================
-    # Generación básica
+    # SAFE GENERATE (🔥 FIX CRÍTICO)
     # =====================================================
 
     def generate(self, prompt: str, temperature: float = 0.2) -> str:
         """
-        Envía un prompt a Gemini y devuelve la respuesta.
+        Generación segura con manejo real de errores.
         """
 
         try:
@@ -65,18 +57,31 @@ class GeminiClient:
                 )
             )
 
-            return response.text or ""
+            # =================================================
+            # VALIDACIÓN REAL DE RESPUESTA
+            # =================================================
+
+            if not response:
+                return "Sin respuesta de Gemini"
+
+            if not hasattr(response, "text"):
+                return "Respuesta inválida de Gemini"
+
+            if response.text is None:
+                return "Respuesta vacía de Gemini"
+
+            return str(response.text)
 
         except Exception as e:
-            return f"Error Gemini API: {str(e)}"
+            return f"Error Gemini API (generate): {str(e)}"
 
     # =====================================================
-    # Chat estructurado (multi-turn)
+    # CHAT
     # =====================================================
 
     def chat(self, messages: list, temperature: float = 0.2) -> str:
         """
-        Chat con historial.
+        Chat con historial seguro.
         """
 
         try:
@@ -89,18 +94,21 @@ class GeminiClient:
                 )
             )
 
-            return response.text or ""
+            if not response or not hasattr(response, "text"):
+                return "Sin respuesta de Gemini Chat"
+
+            return str(response.text)
 
         except Exception as e:
-            return f"Error Gemini Chat: {str(e)}"
+            return f"Error Gemini API (chat): {str(e)}"
 
     # =====================================================
-    # Streaming (opcional)
+    # STREAM
     # =====================================================
 
     def stream(self, prompt: str, temperature: float = 0.2):
         """
-        Respuesta en streaming.
+        Streaming seguro.
         """
 
         try:
@@ -111,18 +119,15 @@ class GeminiClient:
                     temperature=temperature
                 )
             ):
-                if chunk.text:
+                if chunk and hasattr(chunk, "text") and chunk.text:
                     yield chunk.text
 
         except Exception as e:
             yield f"Error Stream: {str(e)}"
 
     # =====================================================
-    # Utilidad: cambiar modelo
+    # CAMBIAR MODELO
     # =====================================================
 
     def set_model(self, model: str):
-        """
-        Cambia el modelo dinámicamente.
-        """
         self.model = model
