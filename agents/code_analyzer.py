@@ -1,14 +1,53 @@
-from core.llm_client import ask_llm
+"""
+=========================================================
+Antigravity AI
+Code Analyzer Agent
+=========================================================
 
-class CodeAnalyzerAgent:
-    def run(self, code: str):
-        prompt = f"""
-        Analiza el siguiente código y detecta:
-        - errores
-        - malas prácticas
-        - posibles bugs
+Analiza código fuente utilizando Google Gemini.
 
-        Código:
-        {code}
+Responsabilidades:
+
+- Revisar arquitectura
+- Detectar bugs
+- Detectar código duplicado
+- Detectar malas prácticas
+- Analizar rendimiento
+- Analizar complejidad
+- Revisar Clean Code
+- Revisar SOLID
+
+Autor: ISAI
+"""
+
+from core.base_agent import BaseAgent
+from core.prompts import ANALYZER_PROMPT
+
+
+class CodeAnalyzerAgent(BaseAgent):
+    """
+    Agente encargado de analizar código.
+    """
+
+    def __init__(self):
+        super().__init__(
+            name="Code Analyzer",
+            description="Analiza la calidad del código."
+        )
+
+    # =====================================================
+    # Análisis principal
+    # =====================================================
+
+    def run(self, code: str) -> str:
         """
-        return ask_llm(prompt)
+        Analiza el código y genera un reporte.
+        """
+
+        prompt = f"""
+{ANALYZER_PROMPT}
+
+Analiza cuidadosamente el siguiente código.
+
+```python
+{code}

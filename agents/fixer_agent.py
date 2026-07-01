@@ -1,19 +1,60 @@
-from core.llm_client import ask_llm
+"""
+=========================================================
+Antigravity AI
+Fixer Agent
+=========================================================
 
-class FixerAgent:
-    def run(self, code: str, analysis: str, security: str):
-        prompt = f"""
-        Corrige el siguiente código tomando en cuenta:
+Corrige automáticamente el código utilizando los
+reportes generados por los demás agentes.
 
-        🔍 Análisis de errores:
-        {analysis}
+Responsabilidades:
 
-        🛡️ Seguridad:
-        {security}
+- Corregir bugs
+- Mejorar rendimiento
+- Aplicar Clean Code
+- Aplicar SOLID
+- Corregir problemas de seguridad
+- Reducir complejidad
+- Optimizar arquitectura
 
-        Código original:
-        {code}
+Autor: ISAI
+"""
 
-        Devuelve SOLO el código corregido.
+from core.base_agent import BaseAgent
+from core.prompts import FIXER_PROMPT
+
+
+class FixerAgent(BaseAgent):
+    """
+    Agente encargado de corregir código.
+    """
+
+    def __init__(self):
+        super().__init__(
+            name="Fixer",
+            description="Corrige automáticamente el código."
+        )
+
+    # =====================================================
+    # Corrección principal
+    # =====================================================
+
+    def run(
+        self,
+        code: str,
+        analysis: str = "",
+        security: str = "",
+        debugger: str = ""
+    ) -> str:
         """
-        return ask_llm(prompt)
+        Corrige el código utilizando los reportes
+        de los demás agentes.
+        """
+
+        prompt = f"""
+{FIXER_PROMPT}
+
+Código original:
+
+```python
+{code}
