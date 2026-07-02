@@ -1,1 +1,11 @@
 Co-authored-by: Isai Reyes Peña <161645019+isairey@users.noreply.github.com>
+## 📱 Problema detectado
+- El servicio de Firebase Cloud Messaging no está configurado.  
+- Tokens de dispositivos no se guardan en la base de datos.  
+
+## 🔧 Solución
+- Configurar **FCM** en backend y frontend.  
+- Añadir endpoint para registrar tokens de usuario.  
+
+## 🏅 Badge relacionado
+- Esto ayuda a **Pair Extraordinaire** si se colabora en el fix.  
