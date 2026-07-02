@@ -9,3 +9,13 @@ Co-authored-by: Isai Reyes Peña <161645019+isairey@users.noreply.github.com>
 
 ## 🏅 Badge relacionado
 - Esto ayuda a **Pair Extraordinaire** si se colabora en el fix.  
+## 📊 Observaciones
+- El módulo de exportación usa librería obsoleta.  
+- Los gráficos no se renderizan en el PDF final.  
+
+## 💡 Fix sugerido
+- Migrar a **jsPDF + html2canvas** para exportación moderna.  
+- Validar compatibilidad con navegadores principales.  
+
+## 🏅 Badge relacionado
+- Esto suma puntos para **Galaxy Brain** al resolver discusiones técnicas.  
