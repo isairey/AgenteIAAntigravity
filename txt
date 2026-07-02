@@ -40,11 +40,6 @@ Co-authored-by: isairey <anonymus1201a@gmail.com>
 - El cálculo de IVA se hace solo en frontend.  
 - Backend no valida tasas según región.  
 
-## 🛠️ Solución
-- Implementar cálculo en backend con reglas fiscales.  
-- Añadir pruebas de integración con **Cypress**.  
 
-## 🏅 Badge relacionado
-- Esto suma para **Quickdraw** al responder rápido y proponer solución clara.  
 
 
