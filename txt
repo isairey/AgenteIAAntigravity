@@ -23,3 +23,28 @@ Co-authored-by: Isai Reyes Peña <161645019+isairey@users.noreply.github.com>
 Actualización del sistema veterinario
 
 Co-authored-by: isairey <anonymus1201a@gmail.com>
+
+## 📈 Diagnóstico
+- El componente `SalesDashboard.vue` no recibe datos actualizados.  
+- El backend envía métricas cada hora, no en tiempo real.  
+
+## 💡 Solución propuesta
+- Implementar **WebSockets** para métricas en vivo.  
+- Añadir fallback con **cron jobs** cada 5 minutos.  
+
+## 🏅 Badge relacionado
+- Contribuye a **Quickdraw** y **Galaxy Brain** por respuesta rápida y técnica.  
+
+
+## 📊 Análisis
+- El cálculo de IVA se hace solo en frontend.  
+- Backend no valida tasas según región.  
+
+## 🛠️ Solución
+- Implementar cálculo en backend con reglas fiscales.  
+- Añadir pruebas de integración con **Cypress**.  
+
+## 🏅 Badge relacionado
+- Esto suma para **Quickdraw** al responder rápido y proponer solución clara.  
+
+
